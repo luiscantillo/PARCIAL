@@ -124,15 +124,19 @@ class Batalla:
 
 
 # ==========================================
-# EJECUCIÓN Y PRUEBA DEL CÓDIGO
+# EJECUCIÓN Y PRUEBA DEL CÓDIGO (CON EL ARQUERO)
 # ==========================================
 if __name__ == "__main__":
-    # Creamos un Guerrero con vida 100, ataque 30, y defensa 20
+    # 1. Creamos a los personajes
     guerrero = Guerrero(100, 30, 20)
+    mago = Mago(80, 40, 10) 
     
-    # Creamos un Mago con vida 80, ataque 40, y defensa 10
-    mago = Mago(80, 40, 10)
+    # Le asignamos valores iniciales de ejemplo al Arquero
+    arquero = Arquero(90, 25, 15) 
     
-    # Ambos personajes se enfrentan
-    arena = Batalla(guerrero, mago)
-    arena.iniciar()
+    # 2. Vamos a probar la clase Arquero enfrentándolo al Guerrero
+    print("PREPARANDO NUEVA BATALLA...")
+    arena_arquero = Batalla(arquero, guerrero)
+    
+    # 3. Iniciamos el combate
+    arena_arquero.iniciar()
