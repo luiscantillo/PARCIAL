@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import os
 
-#CLASES BASE Y SUBCLASES
+# Se crea una clase base con atributos privados.
 
 class Personaje(ABC):
     def __init__(self, nombre_clase, vida, ataque, defensa):
@@ -11,6 +11,8 @@ class Personaje(ABC):
         self.__ataque = ataque
         self.__defensa = defensa
 
+    # Getters y Setters
+    
     def get_nombre(self):
         return self.__nombre_clase
 
@@ -18,6 +20,7 @@ class Personaje(ABC):
         return self.__vida
 
     def set_vida(self, valor):
+    # Validación: la vida debe estar entre 0 y 100
         if valor < 0:
             self.__vida = 0
         elif valor > 100:
@@ -34,25 +37,29 @@ class Personaje(ABC):
     def esta_vivo(self):
         return self.__vida > 0
 
+    # Método abstracto para obligar a las subclases a implementarlo.
     @abstractmethod
     def atacar(self, objetivo):
         pass
-
+    
+# Subclases para cada guerrero con sus habilidades
 class Guerrero(Personaje):
     def __init__(self):
         super().__init__("Guerrero", 100, 30, 20)
 
     def atacar(self, objetivo):
+    # Habilidad Especial: 20% de incremento de daño en el ataque
         ataque_real = self.get_ataque() * 1.2
-        dano = max(0, ataque_real - objetivo.get_defensa())
+        dano = max(0, ataque_real - objetivo.get_defensa())# Evitar curar al enemigo si la defensa es mayor
         print(f"⚔️  El Guerrero ataca con furia causando {dano:.1f} de daño!")
-        objetivo.set_vida(objetivo.get_vida() - dano)
+        objetivo.set_vida(objetivo.get_vida() - dano) 
 
 class Mago(Personaje):
     def __init__(self):
         super().__init__("Mago", 80, 40, 10)
 
     def atacar(self, objetivo):
+    # Habilidad Especial: Su ataque ignora la defensa del objetivo
         dano = self.get_ataque()
         print(f"🔮 El Mago lanza un hechizo que ignora la defensa, causando {dano} de daño!")
         objetivo.set_vida(objetivo.get_vida() - dano)
@@ -62,6 +69,7 @@ class Arquero(Personaje):
         super().__init__("Arquero", 90, 25, 15)
 
     def atacar(self, objetivo):
+    # Habilidad Especial: Si ataque > defensa, hace el doble de daño
         ataque_base = self.get_ataque()
         if ataque_base > objetivo.get_defensa():
             ataque_real = ataque_base * 2
