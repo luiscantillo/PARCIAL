@@ -1,44 +1,48 @@
-# Guardians of the Ancient Kingdom ⚔️🛡️
+# Guardians of the Ancient Kingdom - Especificación de Diseño ⚔️
 
-Simulador de combates por turnos escrito en Python. Este script ejecuta batallas automáticas entre diferentes clases de personajes, calculando el daño dinámicamente y gestionando los puntos de vida hasta declarar un ganador.
+Este proyecto implementa un simulador de combate por turnos utilizando un diseño robusto basado en Programación Orientada a Objetos (POO) en Python. El sistema permite la gestión de diferentes arquetipos de personajes, cada uno con lógica de combate especializada y una interfaz de usuario mediante consola.
 
-## 📝 Estructura del Código
+## Arquitectura y Diseño de Clases
 
-El proyecto está compuesto por tres componentes principales que interactúan entre sí:
+El diseño se centra en la separación de responsabilidades, dividiendo el programa en entidades de datos (Personajes), lógica de enfrentamiento (Batalla) y control de flujo (Menú).
 
-### 1. Clase Base (`Personaje`)
-Es la plantilla principal del juego. Define el estado inicial de cualquier combatiente.
-* **Atributos protegidos:** Maneja `__vida`, `__ataque` y `__defensa`. 
-* **Control de Salud:** Utiliza el método `set_vida(valor)` para asegurar que los puntos de vida nunca sean negativos ni superen el máximo de 100.
-* **Método `atacar()`:** Está definido de forma abstracta, obligando a que cada tipo de personaje programe su propia regla de ataque.
+### 1. Clase Base: Personaje (Abstracción y Encapsulamiento)
+Es la piedra angular del diseño. Se define como una Clase Abstracta (ABC), lo que significa que no puede ser instanciada por sí misma, sino que define el contrato que todas las subclases deben seguir.
 
-### 2. Clases de Combatientes (`Guerrero`, `Mago`, `Arquero`)
-Heredan todas las características de la clase `Personaje`, pero cada una implementa una lógica matemática diferente al momento de hacer daño:
-* **Guerrero:** `ataque_real = ataque * 1.2` (Aplica un 20% extra de daño base).
-* **Mago:** `dano = ataque` (Omite restar la defensa del oponente).
-* **Arquero:** Evalúa si `ataque > defensa_objetivo`. Si es `True`, multiplica su daño base por 2 antes de restar la defensa rival.
-* *Nota:* Todas las clases utilizan `max(0, dano)` para evitar que una defensa muy alta genere un daño negativo que termine "curando" al objetivo.
+* Atributos Privados: Maneja de forma interna la integridad de los datos (__vida, __ataque, __defensa, __nombre_clase).
+* Gestión de Estado (Setters): El método set_vida() actúa como un filtro de validación. Asegura que cualquier operación de daño o curación mantenga los puntos de salud dentro del rango lógico de [0 - 100], evitando estados inconsistentes en el motor de juego.
+* Contrato de Comportamiento: Define el método abstracto atacar(objetivo), obligando a cada especialidad a definir su propia lógica de cálculo de daño.
 
-### 3. Controlador del Juego (`Batalla`)
-Es el motor que gestiona el flujo del combate.
-* Se inicializa recibiendo a dos personajes (`personaje1`, `personaje2`).
-* **Método `iniciar()`:** Ejecuta un ciclo `while` que se repite mientras el método `hay_ganador()` sea falso.
-* **Sistema de Turnos:** Utiliza una variable contadora. Si el turno es impar, ataca el personaje 1; si es par, ataca el personaje 2.
-* Imprime en consola el reporte de la salud restante después de cada impacto.
+### 2. Especializaciones: Guerrero, Mago y Arquero (Herencia y Polimorfismo)
+Estas clases extienden la funcionalidad de Personaje. Utilizan el constructor super().__init__ para inicializar sus estadísticas base de forma predefinida, facilitando la creación de objetos.
 
-## ⚙️ Flujo de Ejecución
+* Guerrero: Especializado en fuerza bruta. Su diseño sobrescribe la lógica de ataque para aplicar un multiplicador del 1.2x al daño base.
+* Mago: Especializado en ataques elementales. Su diseño rompe la regla estándar de mitigación, ya que su cálculo de daño ignora la estadística de defensa del oponente.
+* Arquero: Especializado en precisión. Implementa una estructura condicional dentro de su método de ataque: si su estadística de ataque supera la defensa rival, ejecuta un daño crítico (2.0x).
 
-Al correr el script, el bloque principal (`if __name__ == "__main__":`) realiza los siguientes pasos:
-1. Instancia los objetos (ej. un `Guerrero` y un `Mago`) pasándoles sus estadísticas iniciales.
-2. Pasa estos objetos a la clase `Batalla`.
-3. Llama al método `arena.iniciar()`, lo que detona el ciclo automático de ataques.
-4. El programa finaliza su ejecución al imprimir el ganador de la contienda.
+### 3. Controlador de Encuentros: Batalla
+Esta clase se encarga de la lógica de orquestación. No conoce los detalles internos de cada personaje, solo sabe que son objetos de tipo Personaje que pueden atacar y recibir daño.
 
-## 💻 Cómo ejecutar el simulador
+* Agregación: Recibe dos instancias de personajes y gestiona el ciclo de vida del combate.
+* Motor de Turnos: Implementa un bucle while controlado por la vitalidad de los combatientes. Utiliza aritmética modular (turno par/impar) para alternar las acciones entre los jugadores, garantizando equidad en el flujo del juego.
 
-1. Asegúrate de tener Python 3 instalado en tu entorno.
-2. Abre la terminal o línea de comandos.
-3. Navega hasta la ruta donde se encuentra el archivo.
-4. Ejecuta el siguiente comando:
-   ```bash
-   python JUEGO.py
+### 4. Sistema de Interfaz: menu_principal
+Actúa como el punto de entrada (Entry Point) y gestor de estados del programa.
+
+* Instanciación Dinámica: Permite al usuario elegir qué objetos de clase desea crear en tiempo de ejecución.
+* Validación de Dependencias: El menú incluye lógica de control que impide la ejecución de una batalla si los objetos p1 o p2 no han sido inicializados correctamente, evitando errores de referencia nula.
+
+## Lógica de Validación y QA
+
+El diseño incluye salvaguardas técnicas para asegurar un funcionamiento libre de errores comunes:
+
+1. Protección de Valores Negativos: En todos los cálculos de daño se utiliza la función max(0, daño). Esto asegura que si la defensa de un objetivo es superior al ataque del agresor, el daño resultante sea 0 y nunca un valor negativo que incremente la vida del oponente.
+2. Persistencia de Selección: El menú mantiene las referencias a los personajes seleccionados hasta que se inicia la batalla o se decide cambiar de clase, mejorando la experiencia de usuario.
+3. Modularidad: El código está separado de tal forma que añadir un nuevo tipo de personaje solo requiere crear una nueva subclase que herede de Personaje, sin necesidad de modificar la clase Batalla ni el menú principal.
+
+## Instrucciones de Uso
+
+1. Ejecutar el script: python juego_guardians.py
+2. Seleccionar el tipo de personaje para el Jugador 1.
+3. Seleccionar el tipo de personaje para el Jugador 2.
+4. Iniciar la partida para observar la simulación automática basada en las estadísticas y habilidades de cada clase.
