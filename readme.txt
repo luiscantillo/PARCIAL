@@ -1,41 +1,44 @@
 # Guardians of the Ancient Kingdom ⚔️🛡️
 
-Un simulador de batallas por turnos desarrollado en Python, diseñado para demostrar la implementación práctica de los cuatro pilares fundamentales de la Programación Orientada a Objetos (POO).
+Simulador de combates por turnos escrito en Python. Este script ejecuta batallas automáticas entre diferentes clases de personajes, calculando el daño dinámicamente y gestionando los puntos de vida hasta declarar un ganador.
 
-## 📝 Descripción del Proyecto
+## 📝 Estructura del Código
 
-Este proyecto consiste en un juego de consola donde diferentes tipos de personajes (Guerreros, Magos y Arqueros) se enfrentan en combates 1 contra 1. El sistema gestiona los turnos automáticamente y calcula el daño basado en los atributos de ataque y defensa, aplicando habilidades especiales únicas para cada clase hasta que la vida de uno de los combatientes llegue a cero.
+El proyecto está compuesto por tres componentes principales que interactúan entre sí:
 
-## 🚀 Conceptos de POO Aplicados
+### 1. Clase Base (`Personaje`)
+Es la plantilla principal del juego. Define el estado inicial de cualquier combatiente.
+* **Atributos protegidos:** Maneja `__vida`, `__ataque` y `__defensa`. 
+* **Control de Salud:** Utiliza el método `set_vida(valor)` para asegurar que los puntos de vida nunca sean negativos ni superen el máximo de 100.
+* **Método `atacar()`:** Está definido de forma abstracta, obligando a que cada tipo de personaje programe su propia regla de ataque.
 
-Este código fue estructurado específicamente para cumplir con un diseño de clases riguroso, aplicando los siguientes conceptos:
+### 2. Clases de Combatientes (`Guerrero`, `Mago`, `Arquero`)
+Heredan todas las características de la clase `Personaje`, pero cada una implementa una lógica matemática diferente al momento de hacer daño:
+* **Guerrero:** `ataque_real = ataque * 1.2` (Aplica un 20% extra de daño base).
+* **Mago:** `dano = ataque` (Omite restar la defensa del oponente).
+* **Arquero:** Evalúa si `ataque > defensa_objetivo`. Si es `True`, multiplica su daño base por 2 antes de restar la defensa rival.
+* *Nota:* Todas las clases utilizan `max(0, dano)` para evitar que una defensa muy alta genere un daño negativo que termine "curando" al objetivo.
 
-### 1. Abstracción
-Se implementó mediante la librería `abc` de Python. La clase base `Personaje` actúa como una plantilla abstracta.
-* **Evidencia en el código:** Uso del decorador `@abstractmethod` en el método `atacar()`. Esto garantiza que no se puedan crear "Personajes" genéricos, sino que obligatoriamente deben ser instanciados a través de un rol específico (Guerrero, Mago, etc.) que sepa cómo atacar.
+### 3. Controlador del Juego (`Batalla`)
+Es el motor que gestiona el flujo del combate.
+* Se inicializa recibiendo a dos personajes (`personaje1`, `personaje2`).
+* **Método `iniciar()`:** Ejecuta un ciclo `while` que se repite mientras el método `hay_ganador()` sea falso.
+* **Sistema de Turnos:** Utiliza una variable contadora. Si el turno es impar, ataca el personaje 1; si es par, ataca el personaje 2.
+* Imprime en consola el reporte de la salud restante después de cada impacto.
 
-### 2. Encapsulamiento
-Los atributos vitales de los personajes están protegidos para evitar modificaciones indebidas desde fuera de la clase.
-* **Evidencia en el código:** Los atributos `__vida`, `__ataque` y `__defensa` son privados (indicado por el doble guion bajo). Solo se puede acceder o modificar su valor a través de métodos `getters` y `setters`.
-* **Validación de Reglas de Negocio:** El método `set_vida()` incluye la lógica de validación para garantizar que los puntos de salud nunca sean menores a 0 ni mayores a 100.
+## ⚙️ Flujo de Ejecución
 
-### 3. Herencia
-Se optimizó el código evitando la repetición de atributos y métodos comunes.
-* **Evidencia en el código:** Las clases `Guerrero`, `Mago` y `Arquero` heredan directamente de la clase base genérica `Personaje`. Obtienen automáticamente la capacidad de gestionar su vida, ataque y defensa sin necesidad de reescribir ese código en cada clase.
+Al correr el script, el bloque principal (`if __name__ == "__main__":`) realiza los siguientes pasos:
+1. Instancia los objetos (ej. un `Guerrero` y un `Mago`) pasándoles sus estadísticas iniciales.
+2. Pasa estos objetos a la clase `Batalla`.
+3. Llama al método `arena.iniciar()`, lo que detona el ciclo automático de ataques.
+4. El programa finaliza su ejecución al imprimir el ganador de la contienda.
 
-### 4. Polimorfismo
-Aunque la acción de "atacar" es compartida por todos, su comportamiento cambia dinámicamente según quién la ejecute.
-* **Evidencia en el código:** Cada subclase sobrescribe el método abstracto `atacar(objetivo)` con su propia fórmula matemática:
-  * **Guerrero:** Incrementa su ataque base en un 20%.
-  * **Mago:** Ignora completamente la defensa del objetivo al calcular el daño.
-  * **Arquero:** Duplica su daño condicionado a que su ataque base supere la defensa del rival.
+## 💻 Cómo ejecutar el simulador
 
-## ⚙️ Arquitectura del Controlador (Clase Batalla)
-El flujo del juego está orquestado por la clase `Batalla`, la cual recibe dos objetos de tipo `Personaje`. Utiliza un ciclo `while` que evalúa constantemente el estado vital de los combatientes (`esta_vivo()`), alternando los turnos y mostrando un registro detallado en consola del daño causado y la vida restante.
-
-## 💻 Requisitos y Ejecución
-
-* **Requisitos:** Python 3.x instalado en el sistema.
-* **Ejecución:** Abre una terminal en el directorio del archivo y ejecuta:
-  ```bash
-  python JUEGO.py
+1. Asegúrate de tener Python 3 instalado en tu entorno.
+2. Abre la terminal o línea de comandos.
+3. Navega hasta la ruta donde se encuentra el archivo.
+4. Ejecuta el siguiente comando:
+   ```bash
+   python JUEGO.py
