@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-import os
 
 # Se crea una clase base con atributos privados.
 
